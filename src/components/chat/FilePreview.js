@@ -1,0 +1,2 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export const FilePreview = ({ file, onClear }) => (_jsxs("div", { className: "mb-2 flex items-center justify-between rounded-lg border border-white/10 bg-bg-tertiary px-3 py-2 text-sm", children: [_jsx("span", { className: "truncate", children: file.name }), _jsx("button", { className: "text-xs text-red-300", onClick: onClear, children: "Remove" })] }));

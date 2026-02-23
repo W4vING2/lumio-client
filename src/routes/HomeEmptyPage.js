@@ -1,0 +1,2 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export const HomeEmptyPage = () => (_jsx("div", { className: "grid h-full place-items-center", children: _jsxs("div", { className: "text-center", children: [_jsx("h2", { className: "text-2xl font-semibold", children: "Lumio" }), _jsx("p", { className: "mt-2 text-sm text-text-secondary", children: "Select a chat or search for a user to start messaging." })] }) }));

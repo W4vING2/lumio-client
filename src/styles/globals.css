@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #0f0f13;
+  --bg-secondary: #16161d;
+  --bg-tertiary: #1e1e28;
+  --bg-hover: #252533;
+  --accent: #7c6af7;
+  --accent-hover: #9d8fff;
+  --accent-glow: rgba(124, 106, 247, 0.3);
+  --sent-bubble: #4a3f9f;
+  --received-bubble: #1e1e28;
+  --text-primary: #f0f0f5;
+  --text-secondary: #8888aa;
+  --text-muted: #55556a;
+  --border: rgba(255, 255, 255, 0.06);
+  --online: #4ade80;
+  --danger: #f87171;
+}
+
+:root.light {
+  --bg-primary: #f5f6ff;
+  --bg-secondary: #eceffd;
+  --bg-tertiary: #ffffff;
+  --bg-hover: #e7e9fb;
+  --accent: #6d5bf0;
+  --accent-hover: #5f4de0;
+  --accent-glow: rgba(109, 91, 240, 0.2);
+  --sent-bubble: #6d5bf0;
+  --received-bubble: #f2f4ff;
+  --text-primary: #121222;
+  --text-secondary: #535377;
+  --text-muted: #73739a;
+  --border: rgba(0, 0, 0, 0.08);
+  --online: #16a34a;
+  --danger: #dc2626;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: radial-gradient(circle at top left, #201a4f 0%, var(--bg-primary) 55%);
+  color: var(--text-primary);
+}
+
+.light body {
+  background: radial-gradient(circle at top left, #d9ddff 0%, var(--bg-primary) 55%);
+}

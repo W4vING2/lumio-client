@@ -1,0 +1,37 @@
+import { create } from "zustand";
+import { api } from "@/lib/api";
+export const useMessageStore = create((set, get) => ({
+    byChatId: {},
+    cursorByChatId: {},
+    typingUsers: {},
+    loadMessages: async (chatId, append = false) => {
+        const cursor = append ? get().cursorByChatId[chatId] : undefined;
+        const { data } = await api.get(`/chats/${chatId}/messages`, {
+            params: { cursor, limit: 50 }
+        });
+        const prev = get().byChatId[chatId] ?? [];
+        set({
+            byChatId: {
+                ...get().byChatId,
+                [chatId]: append ? [...prev, ...data.data] : data.data
+            },
+            cursorByChatId: {
+                ...get().cursorByChatId,
+                [chatId]: data.nextCursor
+            }
+        });
+    },
+    addMessage: (message) => {
+        const current = get().byChatId[message.chatId] ?? [];
+        const next = [message, ...current.filter((x) => x.id !== message.id)];
+        set({ byChatId: { ...get().byChatId, [message.chatId]: next } });
+    },
+    setTyping: (chatId, username, isTyping) => {
+        const setForChat = new Set(get().typingUsers[chatId] ?? []);
+        if (isTyping)
+            setForChat.add(username);
+        else
+            setForChat.delete(username);
+        set({ typingUsers: { ...get().typingUsers, [chatId]: Array.from(setForChat) } });
+    }
+}));
