@@ -1,10 +1,22 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "types": ["vite/client"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "allowSyntheticDefaultImports": true
-  },
-  "include": ["src", "vite.config.ts"]
+	"compilerOptions": {
+		"target": "ES2020",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+
+		"strict": true,
+		"skipLibCheck": true,
+
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"]
+		},
+
+		"types": ["vite/client", "node"],
+
+		"allowSyntheticDefaultImports": true
+	},
+	"include": ["src", "vite.config.ts"]
 }
