@@ -35,7 +35,8 @@ export const RegisterPage = (): JSX.Element => {
           }
           navigate("/");
         } catch (err) {
-          const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          const data = (err as { response?: { data?: { message?: string; reason?: string } } })?.response?.data;
+          const message = data?.reason ? `${data.message ?? "Ошибка"} (${data.reason})` : data?.message;
           setError(message ?? "Не удалось зарегистрироваться");
         }
       }}>
