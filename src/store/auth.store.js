@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { api, getRefreshToken, setRefreshToken } from "@/lib/api";
+import { api, getRefreshToken, setAccessToken, setRefreshToken } from "@/lib/api";
 import { connectSocket, disconnectSocket } from "@/lib/socket";
 export const useAuthStore = create((set) => ({
     user: null,
@@ -10,9 +10,8 @@ export const useAuthStore = create((set) => ({
         set({ loading: true });
         try {
             const { data } = await api.post("/auth/login", { email, password });
-            const me = await api.get("/users/me", {
-                headers: { Authorization: `Bearer ${data.accessToken}` }
-            });
+            setAccessToken(data.accessToken);
+            const me = await api.get("/users/me");
             setRefreshToken(data.refreshToken);
             connectSocket(data.accessToken);
             set({ user: me.data, accessToken: data.accessToken, refreshToken: data.refreshToken });
@@ -27,6 +26,7 @@ export const useAuthStore = create((set) => ({
             const { data } = await api.post("/auth/register", payload, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
+            setAccessToken(data.accessToken);
             setRefreshToken(data.refreshToken);
             connectSocket(data.accessToken);
             set({ user: data.user, accessToken: data.accessToken, refreshToken: data.refreshToken });
@@ -43,10 +43,9 @@ export const useAuthStore = create((set) => ({
                 const refreshed = await api.post("/auth/refresh", {
                     refreshToken: refresh
                 });
+                setAccessToken(refreshed.data.accessToken);
                 setRefreshToken(refreshed.data.refreshToken);
-                const me = await api.get("/users/me", {
-                    headers: { Authorization: `Bearer ${refreshed.data.accessToken}` }
-                });
+                const me = await api.get("/users/me");
                 connectSocket(refreshed.data.accessToken);
                 set({
                     user: me.data,
@@ -57,6 +56,7 @@ export const useAuthStore = create((set) => ({
                 return;
             }
             catch {
+                setAccessToken(null);
                 setRefreshToken(null);
             }
         }
@@ -67,6 +67,7 @@ export const useAuthStore = create((set) => ({
             set({ user: data, refreshToken: getRefreshToken() });
         }
         catch {
+            setAccessToken(null);
             set({ user: null, accessToken: null, refreshToken: null });
         }
         finally {
@@ -77,6 +78,7 @@ export const useAuthStore = create((set) => ({
         const refresh = useAuthStore.getState().refreshToken;
         await api.post("/auth/logout", { refreshToken: refresh });
         disconnectSocket();
+        setAccessToken(null);
         setRefreshToken(null);
         set({ user: null, accessToken: null, refreshToken: null });
     }

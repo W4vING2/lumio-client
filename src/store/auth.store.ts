@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { AuthUser } from "@lumio/shared";
-import { api, getRefreshToken, setRefreshToken } from "@/lib/api";
+import { api, getRefreshToken, setAccessToken, setRefreshToken } from "@/lib/api";
 import { connectSocket, disconnectSocket } from "@/lib/socket";
 
 interface AuthState {
@@ -23,9 +23,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true });
     try {
       const { data } = await api.post<{ accessToken: string; refreshToken: string }>("/auth/login", { email, password });
-      const me = await api.get<AuthUser>("/users/me", {
-        headers: { Authorization: `Bearer ${data.accessToken}` }
-      });
+      setAccessToken(data.accessToken);
+      const me = await api.get<AuthUser>("/users/me");
       setRefreshToken(data.refreshToken);
       connectSocket(data.accessToken);
       set({ user: me.data, accessToken: data.accessToken, refreshToken: data.refreshToken });
@@ -39,6 +38,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data } = await api.post<{ user: AuthUser; accessToken: string; refreshToken: string }>("/auth/register", payload, {
         headers: { "Content-Type": "multipart/form-data" }
       });
+      setAccessToken(data.accessToken);
       setRefreshToken(data.refreshToken);
       connectSocket(data.accessToken);
       set({ user: data.user, accessToken: data.accessToken, refreshToken: data.refreshToken });
@@ -54,10 +54,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         const refreshed = await api.post<{ accessToken: string; refreshToken: string }>("/auth/refresh", {
           refreshToken: refresh
         });
+        setAccessToken(refreshed.data.accessToken);
         setRefreshToken(refreshed.data.refreshToken);
-        const me = await api.get<AuthUser>("/users/me", {
-          headers: { Authorization: `Bearer ${refreshed.data.accessToken}` }
-        });
+        const me = await api.get<AuthUser>("/users/me");
         connectSocket(refreshed.data.accessToken);
         set({
           user: me.data,
@@ -67,6 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ loading: false });
         return;
       } catch {
+        setAccessToken(null);
         setRefreshToken(null);
       }
     }
@@ -77,6 +77,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       connectSocket(token);
       set({ user: data, refreshToken: getRefreshToken() });
     } catch {
+      setAccessToken(null);
       set({ user: null, accessToken: null, refreshToken: null });
     } finally {
       set({ loading: false });
@@ -86,6 +87,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const refresh = useAuthStore.getState().refreshToken;
     await api.post("/auth/logout", { refreshToken: refresh });
     disconnectSocket();
+    setAccessToken(null);
     setRefreshToken(null);
     set({ user: null, accessToken: null, refreshToken: null });
   }
