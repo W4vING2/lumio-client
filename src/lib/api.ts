@@ -1,7 +1,13 @@
 import axios from "axios";
 
+const trimSlashes = (value: string): string => value.replace(/\/+$/, "");
+const socketUrl = import.meta.env.VITE_SOCKET_URL as string | undefined;
+const envApiUrl = import.meta.env.VITE_API_URL as string | undefined;
+const fallbackApiUrl = socketUrl ? `${trimSlashes(socketUrl)}/api` : undefined;
+const resolvedApiUrl = envApiUrl ? trimSlashes(envApiUrl) : fallbackApiUrl;
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: resolvedApiUrl,
   withCredentials: true
 });
 

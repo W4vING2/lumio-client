@@ -1,6 +1,11 @@
 import axios from "axios";
+const trimSlashes = (value) => value.replace(/\/+$/, "");
+const socketUrl = import.meta.env.VITE_SOCKET_URL;
+const envApiUrl = import.meta.env.VITE_API_URL;
+const fallbackApiUrl = socketUrl ? `${trimSlashes(socketUrl)}/api` : undefined;
+const resolvedApiUrl = envApiUrl ? trimSlashes(envApiUrl) : fallbackApiUrl;
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: resolvedApiUrl,
     withCredentials: true
 });
 const REFRESH_TOKEN_STORAGE_KEY = "lumio_refresh_token";
