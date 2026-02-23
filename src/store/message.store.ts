@@ -35,7 +35,11 @@ export const useMessageStore = create<MessageState>((set, get) => ({
   },
   addMessage: (message) => {
     const current = get().byChatId[message.chatId] ?? [];
-    const next = [message, ...current.filter((x) => x.id !== message.id)];
+    const existingIndex = current.findIndex((x) => x.id === message.id);
+    const next =
+      existingIndex >= 0
+        ? current.map((item, index) => (index === existingIndex ? message : item))
+        : [message, ...current];
     set({ byChatId: { ...get().byChatId, [message.chatId]: next } });
   },
   setTyping: (chatId, username, isTyping) => {

@@ -105,7 +105,6 @@ export const Sidebar = (): JSX.Element => {
               setQuery("");
               setResults([]);
               setSearchOpen(false);
-              void loadChats();
             }}
           />
         ) : null}

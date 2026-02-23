@@ -8,6 +8,7 @@ interface ChatState {
   setActiveChatId: (id: string | null) => void;
   loadChats: () => Promise<void>;
   applyIncomingMessage: (message: MessageDto, currentUserId: string) => boolean;
+  updateUserPresence: (userId: string, isOnline: boolean, lastSeen?: string | null) => void;
 }
 
 const sortChats = (chats: ChatSummary[]): ChatSummary[] =>
@@ -50,5 +51,20 @@ export const useChatStore = create<ChatState>((set) => ({
       return { chats: sortChats(chats) };
     });
     return updated;
-  }
+  },
+  updateUserPresence: (userId, isOnline, lastSeen = null) =>
+    set((state) => ({
+      chats: state.chats.map((chat) => ({
+        ...chat,
+        members: chat.members.map((member) =>
+          member.id === userId
+            ? {
+                ...member,
+                isOnline,
+                lastSeen: isOnline ? null : lastSeen
+              }
+            : member
+        )
+      }))
+    }))
 }));

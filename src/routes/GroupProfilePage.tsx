@@ -43,30 +43,30 @@ export const GroupProfilePage = (): JSX.Element => {
   const canManage = myRole === "OWNER" || myRole === "ADMIN";
 
   if (!group) {
-    return <div className="grid h-full place-items-center text-text-secondary">Loading group...</div>;
+    return <div className="grid h-full place-items-center text-text-secondary">Загрузка группы...</div>;
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-4 md:p-6">
+    <div className="mx-auto h-full w-full max-w-2xl overflow-y-auto p-4 pb-24 md:p-6">
       <div className="rounded-2xl border border-white/10 bg-bg-secondary p-4 md:p-6">
         <button className="mb-3 text-xs text-text-secondary hover:underline" onClick={() => navigate(`/chat/${group.id}`)}>
-          Back to chat
+          Назад в чат
         </button>
         <div className="flex items-center gap-4">
-          <Avatar name={group.name ?? "Group"} src={group.avatar} size={72} />
+          <Avatar name={group.name ?? "Группа"} src={group.avatar} size={72} />
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-xl font-semibold">{group.name ?? "Group"}</h1>
-            <p className="text-sm text-text-secondary">{group.members.length} members</p>
+            <h1 className="truncate text-xl font-semibold">{group.name ?? "Группа"}</h1>
+            <p className="text-sm text-text-secondary">{group.members.length} участников</p>
           </div>
         </div>
 
         {canManage ? (
           <div className="mt-4 space-y-3 rounded-xl border border-white/10 bg-bg-tertiary p-3">
-            <p className="text-sm font-medium">Group settings</p>
+            <p className="text-sm font-medium">Настройки группы</p>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Group name"
+              placeholder="Название группы"
               className="w-full rounded-lg border border-white/10 bg-bg-primary px-3 py-2 text-sm"
             />
             <input type="file" onChange={(event) => setAvatar(event.target.files?.[0] ?? null)} className="text-sm" />
@@ -85,17 +85,17 @@ export const GroupProfilePage = (): JSX.Element => {
                   setAvatar(null);
                   await load();
                 } catch (err) {
-                  setError((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Failed to update group");
+                  setError((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Не удалось обновить группу");
                 }
               }}
             >
-              Save group profile
+              Сохранить профиль группы
             </button>
           </div>
         ) : null}
 
         <div className="mt-5">
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-text-secondary">Members</h2>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-text-secondary">Участники</h2>
           <div className="space-y-2">
             {group.members.map((member) => (
               <div key={member.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-bg-tertiary px-3 py-2">
@@ -114,11 +114,11 @@ export const GroupProfilePage = (): JSX.Element => {
                         await api.delete(`/chats/${group.id}/members/${member.user.id}`);
                         await load();
                       } catch (err) {
-                        setError((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Failed to remove member");
+                        setError((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Не удалось удалить участника");
                       }
                     }}
                   >
-                    Remove
+                    Удалить
                   </button>
                 ) : null}
               </div>

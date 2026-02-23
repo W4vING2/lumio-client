@@ -19,11 +19,11 @@ export const CreateGroupModal = ({ open, users, loading, onClose, onCreate }: Cr
 
   return (
     <Modal open={open} onClose={onClose}>
-      <h3 className="mb-3 text-lg font-semibold">Create group</h3>
+      <h3 className="mb-3 text-lg font-semibold">Создать группу</h3>
       <input
         value={name}
         onChange={(event) => setName(event.target.value)}
-        placeholder="Group name"
+        placeholder="Название группы"
         className="mb-3 w-full rounded-xl border border-white/10 bg-bg-primary px-3 py-2"
       />
       <div className="max-h-72 space-y-1 overflow-y-auto">
@@ -46,13 +46,13 @@ export const CreateGroupModal = ({ open, users, loading, onClose, onCreate }: Cr
                   <p className="text-xs text-text-secondary">@{user.username}</p>
                 </div>
               </div>
-              <span className="text-xs text-text-secondary">{isSelected ? "Added" : "Add"}</span>
+              <span className="text-xs text-text-secondary">{isSelected ? "Добавлен" : "Добавить"}</span>
             </button>
           );
         })}
       </div>
       <div className="mt-4 flex justify-end gap-2">
-        <button className="rounded-lg border border-white/10 px-3 py-2 text-sm" onClick={onClose}>Cancel</button>
+        <button className="rounded-lg border border-white/10 px-3 py-2 text-sm" onClick={onClose}>Отмена</button>
         <button
           className="rounded-lg bg-accent px-3 py-2 text-sm disabled:opacity-50"
           disabled={!canSubmit || loading}
@@ -62,7 +62,7 @@ export const CreateGroupModal = ({ open, users, loading, onClose, onCreate }: Cr
             setSelected([]);
           }}
         >
-          {loading ? "Creating..." : "Create"}
+          {loading ? "Создание..." : "Создать"}
         </button>
       </div>
     </Modal>

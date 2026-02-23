@@ -17,6 +17,9 @@ export const CallModal = () => {
     const [cameraOff, setCameraOff] = useState(type === "AUDIO");
     const [seconds, setSeconds] = useState(0);
     const [error, setError] = useState(null);
+    useEffect(() => {
+        setCameraOff(type === "AUDIO");
+    }, [type]);
     const closeCall = () => {
         localStreamRef.current?.getTracks().forEach((track) => track.stop());
         localStreamRef.current = null;
@@ -112,7 +115,13 @@ export const CallModal = () => {
         socket.on("ice_candidate", onCandidate);
         socket.on("call_end", onEnd);
         void setup().catch((err) => {
-            const message = err instanceof Error ? err.message : "Failed to initialize media devices";
+            const message = err instanceof DOMException && (err.name === "NotAllowedError" || err.name === "SecurityError")
+                ? "Нет доступа к микрофону/камере. Разрешите доступ в браузере."
+                : err instanceof DOMException && (err.name === "NotFoundError" || err.name === "DevicesNotFoundError")
+                    ? "Микрофон или камера не найдены на устройстве."
+                    : err instanceof Error
+                        ? err.message
+                        : "Не удалось инициализировать медиа-устройства";
             setError(message);
         });
         return () => {
@@ -126,7 +135,7 @@ export const CallModal = () => {
         };
     }, [open, chatId, peerUserId, me, signalSdp, type, setCall]);
     const duration = useMemo(() => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`, [seconds]);
-    return (_jsx(Modal, { open: open, onClose: closeCall, children: _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "relative h-64 rounded-xl bg-black/40 p-2", children: [type === "VIDEO" ? (_jsxs(_Fragment, { children: [_jsx("video", { ref: remoteRef, autoPlay: true, playsInline: true, className: "h-full w-full rounded-lg object-cover" }), _jsx("video", { ref: localRef, autoPlay: true, muted: true, playsInline: true, className: "absolute bottom-3 right-3 h-24 w-32 rounded-lg border border-white/20 object-cover" })] })) : (_jsx("div", { className: "grid h-full place-items-center", children: _jsx("p", { children: "Audio call in progress" }) })), _jsx("p", { className: "absolute left-3 top-3 rounded-full bg-black/40 px-2 py-1 text-xs", children: duration })] }), error ? _jsx("p", { className: "rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-200", children: error }) : null, _jsxs("div", { className: "flex justify-center gap-3", children: [_jsx("button", { className: "rounded-full bg-bg-hover p-3", onClick: () => {
+    return (_jsx(Modal, { open: open, onClose: closeCall, children: _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "relative h-64 rounded-xl bg-black/40 p-2", children: [type === "VIDEO" ? (_jsxs(_Fragment, { children: [_jsx("video", { ref: remoteRef, autoPlay: true, playsInline: true, className: "h-full w-full rounded-lg object-cover" }), _jsx("video", { ref: localRef, autoPlay: true, muted: true, playsInline: true, className: "absolute bottom-3 right-3 h-24 w-32 rounded-lg border border-white/20 object-cover" })] })) : (_jsx("div", { className: "grid h-full place-items-center", children: _jsx("p", { children: "\u0418\u0434\u0435\u0442 \u0430\u0443\u0434\u0438\u043E\u0437\u0432\u043E\u043D\u043E\u043A" }) })), _jsx("p", { className: "absolute left-3 top-3 rounded-full bg-black/40 px-2 py-1 text-xs", children: duration })] }), error ? _jsx("p", { className: "rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-200", children: error }) : null, _jsxs("div", { className: "flex justify-center gap-3", children: [_jsx("button", { className: "rounded-full bg-bg-hover p-3", onClick: () => {
                                 const next = !muted;
                                 setMuted(next);
                                 localStreamRef.current?.getAudioTracks().forEach((track) => {

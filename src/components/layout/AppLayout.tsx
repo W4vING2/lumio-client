@@ -28,7 +28,7 @@ export const AppLayout = (): JSX.Element => {
   }, [user, fetchMe]);
 
   if (loading) {
-    return <div className="grid h-screen place-items-center text-text-secondary">Loading...</div>;
+    return <div className="grid h-screen place-items-center text-text-secondary">Загрузка...</div>;
   }
 
   if (!user) {
@@ -54,7 +54,7 @@ export const AppLayout = (): JSX.Element => {
       </AnimatePresence>
       <IncomingCallPopup
         open={incoming}
-        callerName="Incoming caller"
+        callerName="Пользователь Lumio"
         onAccept={() => setCall({ open: true, incoming: false })}
         onDecline={() => {
           const state = useCallStore.getState();

@@ -11,6 +11,7 @@ export const useSocketEvents = () => {
     const chats = useChatStore((state) => state.chats);
     const loadChats = useChatStore((state) => state.loadChats);
     const applyIncomingMessage = useChatStore((state) => state.applyIncomingMessage);
+    const updateUserPresence = useChatStore((state) => state.updateUserPresence);
     const addMessage = useMessageStore((state) => state.addMessage);
     const setTyping = useMessageStore((state) => state.setTyping);
     useEffect(() => {
@@ -32,7 +33,10 @@ export const useSocketEvents = () => {
                 signalSdp: payload.sdp
             });
         };
-        const onEnd = () => {
+        const onEnd = (payload) => {
+            const callState = useCallStore.getState();
+            if (callState.chatId !== payload.chatId || callState.peerUserId !== payload.fromUserId)
+                return;
             setCall({ open: false, incoming: false, signalSdp: null });
         };
         const onMessage = (message) => {
@@ -45,10 +49,18 @@ export const useSocketEvents = () => {
         const onTyping = (payload) => {
             setTyping(payload.chatId, payload.username, payload.isTyping);
         };
+        const onUserOnline = (payload) => {
+            updateUserPresence(payload.userId, true);
+        };
+        const onUserOffline = (payload) => {
+            updateUserPresence(payload.userId, false, payload.lastSeen);
+        };
         socket.on("call_offer", onOffer);
         socket.on("call_end", onEnd);
         socket.on("new_message", onMessage);
         socket.on("user_typing", onTyping);
+        socket.on("user_online", onUserOnline);
+        socket.on("user_offline", onUserOffline);
         for (const chat of chats) {
             socket.emit("join_chat", { chatId: chat.id });
         }
@@ -57,6 +69,8 @@ export const useSocketEvents = () => {
             socket.off("call_end", onEnd);
             socket.off("new_message", onMessage);
             socket.off("user_typing", onTyping);
+            socket.off("user_online", onUserOnline);
+            socket.off("user_offline", onUserOffline);
         };
-    }, [me, accessToken, chats, setCall, addMessage, setTyping, applyIncomingMessage, loadChats]);
+    }, [me, accessToken, chats, setCall, addMessage, setTyping, applyIncomingMessage, loadChats, updateUserPresence]);
 };

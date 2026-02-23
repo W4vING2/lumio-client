@@ -38,5 +38,17 @@ export const useChatStore = create((set) => ({
             return { chats: sortChats(chats) };
         });
         return updated;
-    }
+    },
+    updateUserPresence: (userId, isOnline, lastSeen = null) => set((state) => ({
+        chats: state.chats.map((chat) => ({
+            ...chat,
+            members: chat.members.map((member) => member.id === userId
+                ? {
+                    ...member,
+                    isOnline,
+                    lastSeen: isOnline ? null : lastSeen
+                }
+                : member)
+        }))
+    }))
 }));

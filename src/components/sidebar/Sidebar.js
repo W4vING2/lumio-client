@@ -71,7 +71,6 @@ export const Sidebar = () => {
                             setQuery("");
                             setResults([]);
                             setSearchOpen(false);
-                            void loadChats();
                         } })) : null] }), _jsx("div", { className: "mt-4 max-h-[calc(100vh-190px)] overflow-y-auto pr-1", children: _jsx(ChatList, {}) }), _jsx(CreateGroupModal, { open: showGroupModal, users: results, loading: savingGroup, onClose: () => setShowGroupModal(false), onCreate: async ({ name, userIds }) => {
                     setSavingGroup(true);
                     try {

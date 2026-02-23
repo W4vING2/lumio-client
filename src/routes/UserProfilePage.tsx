@@ -15,13 +15,13 @@ export const UserProfilePage = (): JSX.Element => {
   }, [id]);
 
   if (!user) {
-    return <div className="grid h-full place-items-center text-text-secondary">Loading profile...</div>;
+    return <div className="grid h-full place-items-center text-text-secondary">Загрузка профиля...</div>;
   }
 
   return (
-    <div className="mx-auto max-w-xl p-4 md:p-6">
+    <div className="mx-auto h-full w-full max-w-xl overflow-y-auto p-4 pb-24 md:p-6">
       <button className="mb-3 text-xs text-text-secondary hover:underline md:hidden" onClick={() => navigate("/")}>
-        Back to chats
+        Назад к чатам
       </button>
       <div className="rounded-2xl border border-white/10 bg-bg-secondary p-6">
         <div className="flex items-center gap-4">
@@ -29,10 +29,10 @@ export const UserProfilePage = (): JSX.Element => {
           <div>
             <h1 className="text-xl font-semibold">{user.displayName ?? user.username}</h1>
             <p className="text-sm text-text-secondary">@{user.username}</p>
-            <p className="mt-1 text-xs text-text-muted">{user.isOnline ? "Online" : user.lastSeen ? `Last seen ${new Date(user.lastSeen).toLocaleString()}` : "Offline"}</p>
+            <p className="mt-1 text-xs text-text-muted">{user.isOnline ? "В сети" : user.lastSeen ? `Был(а) в сети ${new Date(user.lastSeen).toLocaleString()}` : "Не в сети"}</p>
           </div>
         </div>
-        <p className="mt-4 text-sm text-text-secondary">{user.bio || "No bio yet"}</p>
+        <p className="mt-4 text-sm text-text-secondary">{user.bio || "Пока без описания"}</p>
         <button
           className="mt-5 rounded-lg bg-accent px-3 py-2 text-sm font-medium"
           onClick={async () => {
@@ -40,7 +40,7 @@ export const UserProfilePage = (): JSX.Element => {
             navigate(`/chat/${data.id}`);
           }}
         >
-          Send message
+          Написать
         </button>
       </div>
     </div>

@@ -20,19 +20,19 @@ export const SettingsPage = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="mx-auto max-w-2xl p-4 md:p-6">
+    <div className="mx-auto h-full w-full max-w-2xl overflow-y-auto p-4 pb-24 md:p-6">
       <button className="mb-3 text-xs text-text-secondary hover:underline md:hidden" onClick={() => navigate("/")}>
-        Back to chats
+        Назад к чатам
       </button>
-      <h1 className="mb-4 text-2xl font-semibold">Settings</h1>
+      <h1 className="mb-4 text-2xl font-semibold">Настройки</h1>
       <div className="space-y-3 rounded-2xl border border-white/10 bg-bg-secondary p-4">
         <div className="flex items-center gap-3">
-          <Avatar name={user?.username ?? "User"} src={user?.avatar} online={user?.isOnline} size={56} />
+          <Avatar name={user?.username ?? "Пользователь"} src={user?.avatar} online={user?.isOnline} size={56} />
           <input type="file" onChange={(event) => setAvatar(event.target.files?.[0] ?? null)} className="text-sm" />
         </div>
-        <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username (unique)" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
-        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Display name" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
-        <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Bio" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
+        <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Юзернейм (уникальный)" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
+        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Имя" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
+        <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="О себе" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
         {error ? <p className="text-sm text-red-300">{error}</p> : null}
         <button className="rounded-lg bg-accent px-3 py-2" onClick={async () => {
           setError(null);
@@ -51,13 +51,13 @@ export const SettingsPage = (): JSX.Element => {
             await fetchMe();
             setAvatar(null);
           } catch (err) {
-            setError((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Failed to update profile");
+            setError((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? "Не удалось обновить профиль");
           }
         }}>
-          Save profile
+          Сохранить профиль
         </button>
-        <button className="ml-2 rounded-lg border border-white/10 px-3 py-2" onClick={toggle}>{light ? "Switch to dark" : "Switch to light"}</button>
-        <button className="ml-2 rounded-lg border border-red-400/30 px-3 py-2 text-red-300" onClick={() => void logout()}>Logout</button>
+        <button className="ml-2 rounded-lg border border-white/10 px-3 py-2" onClick={toggle}>{light ? "Темная тема" : "Светлая тема"}</button>
+        <button className="ml-2 rounded-lg border border-red-400/30 px-3 py-2 text-red-300" onClick={() => void logout()}>Выйти</button>
       </div>
     </div>
   );

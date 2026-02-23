@@ -6,12 +6,12 @@ export const RouteErrorPage = (): JSX.Element => {
   return (
     <div className="grid h-screen place-items-center p-6">
       <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-bg-secondary p-6">
-        <h1 className="text-xl font-semibold">Something went wrong</h1>
-        <p className="mt-2 text-sm text-text-secondary">{error?.message ?? "Unexpected application error"}</p>
+        <h1 className="text-xl font-semibold">Что-то пошло не так</h1>
+        <p className="mt-2 text-sm text-text-secondary">{error?.message ?? "Непредвиденная ошибка приложения"}</p>
         <div className="mt-4 flex gap-2">
-          <Link to="/" className="rounded-lg bg-accent px-3 py-2 text-sm font-medium">Go home</Link>
+          <Link to="/" className="rounded-lg bg-accent px-3 py-2 text-sm font-medium">На главную</Link>
           <button className="rounded-lg border border-white/10 px-3 py-2 text-sm" onClick={() => window.location.reload()}>
-            Reload
+            Обновить
           </button>
         </div>
       </div>

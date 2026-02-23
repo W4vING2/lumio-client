@@ -22,6 +22,6 @@ export const ChatRoutePage = (): JSX.Element => {
     };
   }, [id, setActiveChatId]);
 
-  if (!id) return <div className="grid h-full place-items-center">Select a chat</div>;
+  if (!id) return <div className="grid h-full place-items-center">Выберите чат</div>;
   return <ChatArea chatId={id} />;
 };

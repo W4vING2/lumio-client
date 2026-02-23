@@ -65,11 +65,11 @@ export const MessageBubble = ({ message, mine, onReact }: MessageBubbleProps): J
         <p className="break-words">{message.content}</p>
         {message.fileUrl ? (
           <a className="mt-1 block text-xs text-accent underline" href={resolveAssetUrl(message.fileUrl) ?? "#"} target="_blank" rel="noreferrer">
-            {message.fileName ?? "attachment"}
+            {message.fileName ?? "вложение"}
           </a>
         ) : null}
         <div className="mt-1 flex items-center justify-end gap-2 text-[10px] text-white/70">
-          {message.isEdited ? <span>edited</span> : null}
+          {message.isEdited ? <span>изменено</span> : null}
           <span>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         </div>
         <MessageReactions reactions={message.reactions.map((x) => ({ emoji: x.emoji, count: x.count }))} />

@@ -14,9 +14,10 @@ interface ChatListItemProps {
 export const ChatListItem = ({ chat, active }: ChatListItemProps): JSX.Element => {
   const me = useAuthStore((state) => state.user);
   const peer = chat.members.find((member) => member.id !== me?.id);
-  const title = chat.name ?? peer?.displayName ?? peer?.username ?? chat.members[0]?.displayName ?? chat.members[0]?.username ?? "Direct chat";
-  const preview = chat.lastMessage?.content?.trim() ? chat.lastMessage.content : chat.lastMessage?.fileName ?? "No messages yet";
+  const title = chat.name ?? peer?.displayName ?? peer?.username ?? chat.members[0]?.displayName ?? chat.members[0]?.username ?? "Личный чат";
+  const preview = chat.lastMessage?.content?.trim() ? chat.lastMessage.content : chat.lastMessage?.fileName ?? "Нет сообщений";
   const avatarSrc = chat.avatar ?? peer?.avatar ?? null;
+  const isOnline = chat.type === "DIRECT" ? Boolean(peer?.isOnline) : chat.members.some((member) => member.id !== me?.id && member.isOnline);
   return (
     <motion.div whileHover={{ y: -1 }} className="mb-2">
       <Link
@@ -28,7 +29,7 @@ export const ChatListItem = ({ chat, active }: ChatListItemProps): JSX.Element =
             : "border-white/10 bg-bg-tertiary/80 hover:border-white/20 hover:bg-bg-hover"
         )}
       >
-        <Avatar name={title} src={avatarSrc} online={chat.members.some((x) => x.isOnline)} />
+        <Avatar name={title} src={avatarSrc} online={isOnline} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <p className={clsx("truncate text-sm text-white", chat.unreadCount > 0 ? "font-semibold" : "font-medium")}>{title}</p>

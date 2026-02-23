@@ -22,7 +22,7 @@ export const UserSearchResults = ({ users, onStartChat }: UserSearchResultsProps
             </div>
           </div>
           <button className="rounded-lg bg-accent px-2 py-1 text-xs font-medium" onClick={() => onStartChat(user.id)}>
-            Start chat
+            Начать чат
           </button>
         </div>
       ))}

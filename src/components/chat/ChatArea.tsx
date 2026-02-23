@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Phone, UserPlus, Video } from "lucide-react";
+import { ChevronLeft, Phone, User, UserPlus, Video } from "lucide-react";
 import { useMessageStore } from "@/store/message.store";
 import { useCallStore } from "@/store/call.store";
 import { MessageList } from "./MessageList";
@@ -19,7 +19,7 @@ export const ChatArea = ({ chatId }: { chatId: string }): JSX.Element => {
   const typing = useMessageStore((state) => state.typingUsers[chatId] ?? EMPTY_TYPING);
   const setCall = useCallStore((state) => state.setCall);
   const me = useAuthStore((state) => state.user);
-  const [chatName, setChatName] = useState("Chat");
+  const [chatName, setChatName] = useState("Чат");
   const [chatType, setChatType] = useState<"DIRECT" | "GROUP" | "CHANNEL">("DIRECT");
   const [members, setMembers] = useState<AuthUser[]>(EMPTY_MEMBERS);
   const [addOpen, setAddOpen] = useState(false);
@@ -28,39 +28,29 @@ export const ChatArea = ({ chatId }: { chatId: string }): JSX.Element => {
 
   const requestCallPermissions = async (callType: "AUDIO" | "VIDEO"): Promise<boolean> => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      window.alert("Media devices are unavailable in this browser context. Use https or localhost.");
+      window.alert("Медиа-устройства недоступны. Открой приложение через HTTPS.");
       return false;
     }
     try {
-      if (navigator.permissions?.query) {
-        const micStatus = await navigator.permissions.query({
-          name: "microphone" as PermissionName
-        });
-        if (micStatus.state === "denied") {
-          window.alert("Lumio needs access to microphone. Please allow access in your browser settings.");
-          return false;
-        }
-
-        if (callType === "VIDEO") {
-          const camStatus = await navigator.permissions.query({
-            name: "camera" as PermissionName
-          });
-          if (camStatus.state === "denied") {
-            window.alert("Lumio needs access to camera. Please allow access in your browser settings.");
-            return false;
-          }
-        }
-      }
+      const probe = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: callType === "VIDEO"
+      });
+      probe.getTracks().forEach((track) => track.stop());
       return true;
     } catch {
-      // If permission API is unavailable or throws, do not block call start.
-      return true;
+      window.alert(
+        callType === "VIDEO"
+          ? "Нужен доступ к микрофону и камере. Разрешите доступ в настройках браузера."
+          : "Нужен доступ к микрофону. Разрешите доступ в настройках браузера."
+      );
+      return false;
     }
   };
 
   useEffect(() => {
     void api.get(`/chats/${chatId}`).then(({ data }) => {
-      setChatName(data.name ?? "Direct chat");
+      setChatName(data.name ?? "Личный чат");
       setChatType(data.type);
       setMembers(data.members.map((member: { user: AuthUser }) => member.user));
     });
@@ -88,6 +78,15 @@ export const ChatArea = ({ chatId }: { chatId: string }): JSX.Element => {
           <h2 className="truncate text-sm font-semibold">{chatName}</h2>
         )}
         <div className="ml-2 flex gap-1 md:gap-2">
+          {chatType === "DIRECT" && peerProfile ? (
+            <Link
+              to={`/profile/${peerProfile.id}`}
+              className="rounded-lg border border-white/10 p-2 hover:bg-bg-hover md:hidden"
+              aria-label="Профиль пользователя"
+            >
+              <User size={16} />
+            </Link>
+          ) : null}
           {chatType === "GROUP" ? (
             <button
               className="rounded-lg border border-white/10 p-2 hover:bg-bg-hover"
@@ -131,7 +130,7 @@ export const ChatArea = ({ chatId }: { chatId: string }): JSX.Element => {
       </div>
       <MessageInput chatId={chatId} />
       <Modal open={addOpen} onClose={() => setAddOpen(false)}>
-        <h3 className="mb-3 text-lg font-semibold">Add members</h3>
+        <h3 className="mb-3 text-lg font-semibold">Добавить участников</h3>
         <div className="max-h-72 space-y-1 overflow-y-auto">
           {candidates.map((user) => {
             const selected = selectedIds.includes(user.id);
@@ -146,13 +145,13 @@ export const ChatArea = ({ chatId }: { chatId: string }): JSX.Element => {
                 }
               >
                 <span>{user.displayName ?? user.username}</span>
-                <span className="text-xs">{selected ? "Added" : "Add"}</span>
+                <span className="text-xs">{selected ? "Добавлен" : "Добавить"}</span>
               </button>
             );
           })}
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <button className="rounded-lg border border-white/10 px-3 py-2 text-sm" onClick={() => setAddOpen(false)}>Cancel</button>
+          <button className="rounded-lg border border-white/10 px-3 py-2 text-sm" onClick={() => setAddOpen(false)}>Отмена</button>
           <button
             className="rounded-lg bg-accent px-3 py-2 text-sm"
             onClick={async () => {
@@ -164,7 +163,7 @@ export const ChatArea = ({ chatId }: { chatId: string }): JSX.Element => {
               setAddOpen(false);
             }}
           >
-            Save
+            Сохранить
           </button>
         </div>
       </Modal>

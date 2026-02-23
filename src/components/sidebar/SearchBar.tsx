@@ -15,7 +15,7 @@ export const SearchBar = ({ value, onChange, onFocus, onClear }: SearchBarProps)
       value={value}
       onChange={(event) => onChange(event.target.value)}
       onFocus={onFocus}
-      placeholder="Search chats or users"
+      placeholder="Поиск чатов и пользователей"
       className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
     />
     {value ? (

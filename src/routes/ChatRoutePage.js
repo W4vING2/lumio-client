@@ -21,6 +21,6 @@ export const ChatRoutePage = () => {
         };
     }, [id, setActiveChatId]);
     if (!id)
-        return _jsx("div", { className: "grid h-full place-items-center", children: "Select a chat" });
+        return _jsx("div", { className: "grid h-full place-items-center", children: "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0447\u0430\u0442" });
     return _jsx(ChatArea, { chatId: id });
 };

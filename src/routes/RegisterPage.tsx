@@ -32,19 +32,19 @@ export const RegisterPage = (): JSX.Element => {
           navigate("/");
         } catch (err) {
           const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-          setError(message ?? "Registration failed");
+          setError(message ?? "Не удалось зарегистрироваться");
         }
       }}>
-        <h1 className="mb-4 text-2xl font-bold">Create account</h1>
+        <h1 className="mb-4 text-2xl font-bold">Создать аккаунт</h1>
         <div className="space-y-3">
-          <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
+          <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Юзернейм" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
+          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Пароль" className="w-full rounded-xl border border-white/10 bg-bg-tertiary px-3 py-2" />
           <input type="file" onChange={(e) => setAvatar(e.target.files?.[0] ?? null)} className="w-full text-sm" />
           {error ? <p className="text-sm text-red-300">{error}</p> : null}
-          <button className="w-full rounded-xl bg-accent px-3 py-2 font-semibold">Register</button>
+          <button className="w-full rounded-xl bg-accent px-3 py-2 font-semibold">Зарегистрироваться</button>
         </div>
-        <p className="mt-3 text-sm text-text-secondary">Have an account? <Link to="/login" className="text-accent">Login</Link></p>
+        <p className="mt-3 text-sm text-text-secondary">Уже есть аккаунт? <Link to="/login" className="text-accent">Войти</Link></p>
       </motion.form>
     </div>
   );

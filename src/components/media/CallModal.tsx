@@ -21,6 +21,10 @@ export const CallModal = (): JSX.Element => {
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setCameraOff(type === "AUDIO");
+  }, [type]);
+
   const closeCall = (): void => {
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
     localStreamRef.current = null;
@@ -120,7 +124,14 @@ export const CallModal = (): JSX.Element => {
     socket.on("call_end", onEnd);
 
     void setup().catch((err: unknown) => {
-      const message = err instanceof Error ? err.message : "Failed to initialize media devices";
+      const message =
+        err instanceof DOMException && (err.name === "NotAllowedError" || err.name === "SecurityError")
+          ? "Нет доступа к микрофону/камере. Разрешите доступ в браузере."
+          : err instanceof DOMException && (err.name === "NotFoundError" || err.name === "DevicesNotFoundError")
+            ? "Микрофон или камера не найдены на устройстве."
+            : err instanceof Error
+              ? err.message
+              : "Не удалось инициализировать медиа-устройства";
       setError(message);
     });
 
@@ -151,7 +162,7 @@ export const CallModal = (): JSX.Element => {
             </>
           ) : (
             <div className="grid h-full place-items-center">
-              <p>Audio call in progress</p>
+              <p>Идет аудиозвонок</p>
             </div>
           )}
           <p className="absolute left-3 top-3 rounded-full bg-black/40 px-2 py-1 text-xs">{duration}</p>
