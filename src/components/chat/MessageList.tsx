@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import type { MessageDto } from "@lumio/shared";
 import { useMessageStore } from "@/store/message.store";
 import { useAuthStore } from "@/store/auth.store";
 import { MessageBubble } from "./MessageBubble";

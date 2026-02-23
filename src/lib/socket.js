@@ -1,11 +1,10 @@
 import { io } from "socket.io-client";
 let socket = null;
 export const connectSocket = (token) => {
-    const authPayload = token ? { token } : undefined;
     if (!socket) {
         socket = io(import.meta.env.VITE_SOCKET_URL, {
             withCredentials: true,
-            auth: authPayload
+            ...(token ? { auth: { token } } : {})
         });
         return socket;
     }

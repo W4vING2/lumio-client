@@ -11,10 +11,12 @@
 
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["src/*"],
+			"@lumio/shared": ["packages/shared/src/index.ts"],
+			"@lumio/shared/*": ["packages/shared/src/*"]
 		},
 
-		"types": ["vite/client", "node"],
+		"types": ["vite/client", "vite-plugin-pwa/client", "node", "react", "react-dom"],
 
 		"allowSyntheticDefaultImports": true
 	},
