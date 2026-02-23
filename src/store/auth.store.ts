@@ -9,7 +9,8 @@ interface AuthState {
   refreshToken: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (payload: FormData) => Promise<void>;
+  register: (payload: FormData) => Promise<{ requiresEmailVerification: boolean; email: string }>;
+  setSession: (payload: { user: AuthUser; accessToken: string; refreshToken: string }) => void;
   fetchMe: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -19,15 +20,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   refreshToken: getRefreshToken(),
   loading: false,
+  setSession: ({ user, accessToken, refreshToken }) => {
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+    connectSocket(accessToken);
+    set({ user, accessToken, refreshToken });
+  },
   login: async (email, password) => {
     set({ loading: true });
     try {
       const { data } = await api.post<{ accessToken: string; refreshToken: string }>("/auth/login", { email, password });
       setAccessToken(data.accessToken);
       const me = await api.get<AuthUser>("/users/me");
-      setRefreshToken(data.refreshToken);
-      connectSocket(data.accessToken);
-      set({ user: me.data, accessToken: data.accessToken, refreshToken: data.refreshToken });
+      useAuthStore.getState().setSession({
+        user: me.data,
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken
+      });
     } finally {
       set({ loading: false });
     }
@@ -35,13 +44,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   register: async (payload) => {
     set({ loading: true });
     try {
-      const { data } = await api.post<{ user: AuthUser; accessToken: string; refreshToken: string }>("/auth/register", payload, {
+      const { data } = await api.post<{ requiresEmailVerification: boolean; email: string }>("/auth/register", payload, {
         headers: { "Content-Type": "multipart/form-data" }
       });
-      setAccessToken(data.accessToken);
-      setRefreshToken(data.refreshToken);
-      connectSocket(data.accessToken);
-      set({ user: data.user, accessToken: data.accessToken, refreshToken: data.refreshToken });
+      return data;
     } finally {
       set({ loading: false });
     }

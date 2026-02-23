@@ -28,7 +28,11 @@ export const RegisterPage = (): JSX.Element => {
           form.append("email", email);
           form.append("password", password);
           if (avatar) form.append("avatar", avatar);
-          await register(form);
+          const result = await register(form);
+          if (result.requiresEmailVerification) {
+            navigate(`/verify-email?email=${encodeURIComponent(result.email)}`);
+            return;
+          }
           navigate("/");
         } catch (err) {
           const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;

@@ -6,15 +6,23 @@ export const useAuthStore = create((set) => ({
     accessToken: null,
     refreshToken: getRefreshToken(),
     loading: false,
+    setSession: ({ user, accessToken, refreshToken }) => {
+        setAccessToken(accessToken);
+        setRefreshToken(refreshToken);
+        connectSocket(accessToken);
+        set({ user, accessToken, refreshToken });
+    },
     login: async (email, password) => {
         set({ loading: true });
         try {
             const { data } = await api.post("/auth/login", { email, password });
             setAccessToken(data.accessToken);
             const me = await api.get("/users/me");
-            setRefreshToken(data.refreshToken);
-            connectSocket(data.accessToken);
-            set({ user: me.data, accessToken: data.accessToken, refreshToken: data.refreshToken });
+            useAuthStore.getState().setSession({
+                user: me.data,
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken
+            });
         }
         finally {
             set({ loading: false });
@@ -26,10 +34,7 @@ export const useAuthStore = create((set) => ({
             const { data } = await api.post("/auth/register", payload, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
-            setAccessToken(data.accessToken);
-            setRefreshToken(data.refreshToken);
-            connectSocket(data.accessToken);
-            set({ user: data.user, accessToken: data.accessToken, refreshToken: data.refreshToken });
+            return data;
         }
         finally {
             set({ loading: false });

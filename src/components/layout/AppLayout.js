@@ -31,7 +31,17 @@ export const AppLayout = () => {
     if (!user) {
         return _jsx(Navigate, { to: "/login", replace: true });
     }
-    return (_jsxs("div", { className: "flex h-screen w-full overflow-hidden", children: [_jsx("div", { className: showSidebarMobile ? "block h-screen w-full md:w-auto" : "hidden h-screen md:block", children: _jsx(Sidebar, {}) }), _jsx(AnimatePresence, { mode: "wait", children: _jsx(motion.main, { className: showSidebarMobile ? "hidden flex-1 md:block" : "flex-1", initial: { opacity: 0, x: 16 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -16 }, transition: { duration: 0.22 }, children: _jsx(Outlet, {}) }, location.pathname) }), _jsx(IncomingCallPopup, { open: incoming, callerName: "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C Lumio", onAccept: () => setCall({ open: true, incoming: false }), onDecline: () => {
+    return (_jsxs("div", { className: "flex h-screen w-full overflow-hidden", children: [_jsx("div", { className: showSidebarMobile ? "block h-screen w-full md:w-auto" : "hidden h-screen md:block", children: _jsx(Sidebar, {}) }), _jsx(AnimatePresence, { mode: "wait", children: _jsx(motion.main, { className: showSidebarMobile ? "hidden flex-1 md:block" : "flex-1", initial: { opacity: 0, x: 16 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -16 }, transition: { duration: 0.22 }, children: _jsx(Outlet, {}) }, location.pathname) }), _jsx(IncomingCallPopup, { open: incoming, callerName: "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C Lumio", onAccept: () => {
+                    const state = useCallStore.getState();
+                    setCall({
+                        open: true,
+                        incoming: false,
+                        chatId: state.chatId ?? undefined,
+                        peerUserId: state.peerUserId ?? undefined,
+                        type: state.type,
+                        signalSdp: state.signalSdp
+                    });
+                }, onDecline: () => {
                     const state = useCallStore.getState();
                     const meState = useAuthStore.getState().user;
                     if (state.chatId && state.peerUserId && meState) {

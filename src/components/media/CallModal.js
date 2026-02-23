@@ -5,14 +5,28 @@ import { Modal } from "@/components/ui/Modal";
 import { useCallStore } from "@/store/call.store";
 import { useAuthStore } from "@/store/auth.store";
 import { getSocket } from "@/lib/socket";
-const ICE_SERVERS = [{ urls: ["stun:stun.l.google.com:19302"] }];
+const parseIceServers = () => {
+    const raw = import.meta.env.VITE_ICE_SERVERS;
+    if (!raw)
+        return [{ urls: ["stun:stun.l.google.com:19302"] }];
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) && parsed.length ? parsed : [{ urls: ["stun:stun.l.google.com:19302"] }];
+    }
+    catch {
+        return [{ urls: ["stun:stun.l.google.com:19302"] }];
+    }
+};
+const ICE_SERVERS = parseIceServers();
 export const CallModal = () => {
     const { open, type, chatId, peerUserId, signalSdp, setCall } = useCallStore();
     const me = useAuthStore((state) => state.user);
     const localRef = useRef(null);
     const remoteRef = useRef(null);
+    const remoteAudioRef = useRef(null);
     const pcRef = useRef(null);
     const localStreamRef = useRef(null);
+    const remoteStreamRef = useRef(null);
     const [muted, setMuted] = useState(false);
     const [cameraOff, setCameraOff] = useState(type === "AUDIO");
     const [seconds, setSeconds] = useState(0);
@@ -23,6 +37,8 @@ export const CallModal = () => {
     const closeCall = () => {
         localStreamRef.current?.getTracks().forEach((track) => track.stop());
         localStreamRef.current = null;
+        remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
+        remoteStreamRef.current = null;
         pcRef.current?.close();
         pcRef.current = null;
         setCall({ open: false, incoming: false, signalSdp: null });
@@ -49,12 +65,29 @@ export const CallModal = () => {
                 localRef.current.srcObject = stream;
             const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
             pcRef.current = pc;
+            remoteStreamRef.current = new MediaStream();
+            if (remoteRef.current)
+                remoteRef.current.srcObject = remoteStreamRef.current;
+            if (remoteAudioRef.current)
+                remoteAudioRef.current.srcObject = remoteStreamRef.current;
             stream.getTracks().forEach((track) => pc.addTrack(track, stream));
             pc.ontrack = (event) => {
-                const [remoteStream] = event.streams;
-                if (remoteRef.current && remoteStream) {
-                    remoteRef.current.srcObject = remoteStream;
+                const first = event.streams[0];
+                const remoteStream = remoteStreamRef.current;
+                if (first) {
+                    if (remoteRef.current)
+                        remoteRef.current.srcObject = first;
+                    if (remoteAudioRef.current)
+                        remoteAudioRef.current.srcObject = first;
+                    return;
                 }
+                if (!remoteStream)
+                    return;
+                remoteStream.addTrack(event.track);
+                if (remoteRef.current)
+                    remoteRef.current.srcObject = remoteStream;
+                if (remoteAudioRef.current)
+                    remoteAudioRef.current.srcObject = remoteStream;
             };
             pc.onicecandidate = (event) => {
                 if (!event.candidate)
@@ -130,12 +163,14 @@ export const CallModal = () => {
             socket.off("call_end", onEnd);
             localStreamRef.current?.getTracks().forEach((track) => track.stop());
             localStreamRef.current = null;
+            remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
+            remoteStreamRef.current = null;
             pcRef.current?.close();
             pcRef.current = null;
         };
     }, [open, chatId, peerUserId, me, signalSdp, type, setCall]);
     const duration = useMemo(() => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`, [seconds]);
-    return (_jsx(Modal, { open: open, onClose: closeCall, children: _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "relative h-64 rounded-xl bg-black/40 p-2", children: [type === "VIDEO" ? (_jsxs(_Fragment, { children: [_jsx("video", { ref: remoteRef, autoPlay: true, playsInline: true, className: "h-full w-full rounded-lg object-cover" }), _jsx("video", { ref: localRef, autoPlay: true, muted: true, playsInline: true, className: "absolute bottom-3 right-3 h-24 w-32 rounded-lg border border-white/20 object-cover" })] })) : (_jsx("div", { className: "grid h-full place-items-center", children: _jsx("p", { children: "\u0418\u0434\u0435\u0442 \u0430\u0443\u0434\u0438\u043E\u0437\u0432\u043E\u043D\u043E\u043A" }) })), _jsx("p", { className: "absolute left-3 top-3 rounded-full bg-black/40 px-2 py-1 text-xs", children: duration })] }), error ? _jsx("p", { className: "rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-200", children: error }) : null, _jsxs("div", { className: "flex justify-center gap-3", children: [_jsx("button", { className: "rounded-full bg-bg-hover p-3", onClick: () => {
+    return (_jsx(Modal, { open: open, onClose: closeCall, children: _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "relative h-64 rounded-xl bg-black/40 p-2", children: [_jsx("audio", { ref: remoteAudioRef, autoPlay: true, playsInline: true }), type === "VIDEO" ? (_jsxs(_Fragment, { children: [_jsx("video", { ref: remoteRef, autoPlay: true, playsInline: true, className: "h-full w-full rounded-lg object-cover" }), _jsx("video", { ref: localRef, autoPlay: true, muted: true, playsInline: true, className: "absolute bottom-3 right-3 h-24 w-32 rounded-lg border border-white/20 object-cover" })] })) : (_jsx("div", { className: "grid h-full place-items-center", children: _jsx("p", { children: "\u0418\u0434\u0435\u0442 \u0430\u0443\u0434\u0438\u043E\u0437\u0432\u043E\u043D\u043E\u043A" }) })), _jsx("p", { className: "absolute left-3 top-3 rounded-full bg-black/40 px-2 py-1 text-xs", children: duration })] }), error ? _jsx("p", { className: "rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-200", children: error }) : null, _jsxs("div", { className: "flex justify-center gap-3", children: [_jsx("button", { className: "rounded-full bg-bg-hover p-3", onClick: () => {
                                 const next = !muted;
                                 setMuted(next);
                                 localStreamRef.current?.getAudioTracks().forEach((track) => {

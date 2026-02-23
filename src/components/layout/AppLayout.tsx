@@ -55,7 +55,17 @@ export const AppLayout = (): JSX.Element => {
       <IncomingCallPopup
         open={incoming}
         callerName="Пользователь Lumio"
-        onAccept={() => setCall({ open: true, incoming: false })}
+        onAccept={() => {
+          const state = useCallStore.getState();
+          setCall({
+            open: true,
+            incoming: false,
+            chatId: state.chatId ?? undefined,
+            peerUserId: state.peerUserId ?? undefined,
+            type: state.type,
+            signalSdp: state.signalSdp
+          });
+        }}
         onDecline={() => {
           const state = useCallStore.getState();
           const meState = useAuthStore.getState().user;

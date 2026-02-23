@@ -25,7 +25,11 @@ export const RegisterPage = () => {
                     form.append("password", password);
                     if (avatar)
                         form.append("avatar", avatar);
-                    await register(form);
+                    const result = await register(form);
+                    if (result.requiresEmailVerification) {
+                        navigate(`/verify-email?email=${encodeURIComponent(result.email)}`);
+                        return;
+                    }
                     navigate("/");
                 }
                 catch (err) {

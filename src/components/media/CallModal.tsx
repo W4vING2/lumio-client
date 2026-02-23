@@ -5,7 +5,18 @@ import { useCallStore } from "@/store/call.store";
 import { useAuthStore } from "@/store/auth.store";
 import { getSocket } from "@/lib/socket";
 
-const ICE_SERVERS: RTCIceServer[] = [{ urls: ["stun:stun.l.google.com:19302"] }];
+const parseIceServers = (): RTCIceServer[] => {
+  const raw = import.meta.env.VITE_ICE_SERVERS as string | undefined;
+  if (!raw) return [{ urls: ["stun:stun.l.google.com:19302"] }];
+  try {
+    const parsed = JSON.parse(raw) as RTCIceServer[];
+    return Array.isArray(parsed) && parsed.length ? parsed : [{ urls: ["stun:stun.l.google.com:19302"] }];
+  } catch {
+    return [{ urls: ["stun:stun.l.google.com:19302"] }];
+  }
+};
+
+const ICE_SERVERS: RTCIceServer[] = parseIceServers();
 
 export const CallModal = (): JSX.Element => {
   const { open, type, chatId, peerUserId, signalSdp, setCall } = useCallStore();
@@ -13,8 +24,10 @@ export const CallModal = (): JSX.Element => {
 
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
 
   const [muted, setMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(type === "AUDIO");
@@ -28,6 +41,8 @@ export const CallModal = (): JSX.Element => {
   const closeCall = (): void => {
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
     localStreamRef.current = null;
+    remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
+    remoteStreamRef.current = null;
     pcRef.current?.close();
     pcRef.current = null;
     setCall({ open: false, incoming: false, signalSdp: null });
@@ -55,14 +70,24 @@ export const CallModal = (): JSX.Element => {
 
       const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
       pcRef.current = pc;
+      remoteStreamRef.current = new MediaStream();
+      if (remoteRef.current) remoteRef.current.srcObject = remoteStreamRef.current;
+      if (remoteAudioRef.current) remoteAudioRef.current.srcObject = remoteStreamRef.current;
 
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
       pc.ontrack = (event) => {
-        const [remoteStream] = event.streams;
-        if (remoteRef.current && remoteStream) {
-          remoteRef.current.srcObject = remoteStream;
+        const first = event.streams[0];
+        const remoteStream = remoteStreamRef.current;
+        if (first) {
+          if (remoteRef.current) remoteRef.current.srcObject = first;
+          if (remoteAudioRef.current) remoteAudioRef.current.srcObject = first;
+          return;
         }
+        if (!remoteStream) return;
+        remoteStream.addTrack(event.track);
+        if (remoteRef.current) remoteRef.current.srcObject = remoteStream;
+        if (remoteAudioRef.current) remoteAudioRef.current.srcObject = remoteStream;
       };
 
       pc.onicecandidate = (event) => {
@@ -141,6 +166,8 @@ export const CallModal = (): JSX.Element => {
       socket.off("call_end", onEnd);
       localStreamRef.current?.getTracks().forEach((track) => track.stop());
       localStreamRef.current = null;
+      remoteStreamRef.current?.getTracks().forEach((track) => track.stop());
+      remoteStreamRef.current = null;
       pcRef.current?.close();
       pcRef.current = null;
     };
@@ -155,6 +182,7 @@ export const CallModal = (): JSX.Element => {
     <Modal open={open} onClose={closeCall}>
       <div className="space-y-4">
         <div className="relative h-64 rounded-xl bg-black/40 p-2">
+          <audio ref={remoteAudioRef} autoPlay playsInline />
           {type === "VIDEO" ? (
             <>
               <video ref={remoteRef} autoPlay playsInline className="h-full w-full rounded-lg object-cover" />

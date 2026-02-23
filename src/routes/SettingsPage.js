@@ -11,8 +11,8 @@ export const SettingsPage = () => {
     const accessToken = useAuthStore((state) => state.accessToken);
     const fetchMe = useAuthStore((state) => state.fetchMe);
     const logout = useAuthStore((state) => state.logout);
-    const light = useThemeStore((state) => state.light);
-    const toggle = useThemeStore((state) => state.toggle);
+    const mode = useThemeStore((state) => state.mode);
+    const setMode = useThemeStore((state) => state.setMode);
     const [username, setUsername] = useState(user?.username ?? "");
     const [displayName, setDisplayName] = useState(user?.displayName ?? "");
     const [bio, setBio] = useState(user?.bio ?? "");
@@ -39,5 +39,10 @@ export const SettingsPage = () => {
                             catch (err) {
                                 setError(err.response?.data?.message ?? "Не удалось обновить профиль");
                             }
-                        }, children: "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043F\u0440\u043E\u0444\u0438\u043B\u044C" }), _jsx("button", { className: "ml-2 rounded-lg border border-white/10 px-3 py-2", onClick: toggle, children: light ? "Темная тема" : "Светлая тема" }), _jsx("button", { className: "ml-2 rounded-lg border border-red-400/30 px-3 py-2 text-red-300", onClick: () => void logout(), children: "\u0412\u044B\u0439\u0442\u0438" })] })] }));
+                        }, children: "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u043F\u0440\u043E\u0444\u0438\u043B\u044C" }), _jsxs("div", { className: "rounded-xl border border-white/10 bg-bg-tertiary p-3", children: [_jsx("p", { className: "mb-2 text-sm font-medium", children: "\u0422\u0435\u043C\u0430" }), _jsx("div", { className: "grid grid-cols-1 gap-2 sm:grid-cols-2", children: [
+                                    { id: "light", label: "Светлая" },
+                                    { id: "dark", label: "Темная" },
+                                    { id: "green", label: "Зеленая" },
+                                    { id: "blue", label: "Синяя" }
+                                ].map((theme) => (_jsx("button", { className: `rounded-lg border px-3 py-2 text-left text-sm ${mode === theme.id ? "border-accent bg-accent/20" : "border-white/10 hover:bg-bg-hover"}`, onClick: () => setMode(theme.id), type: "button", children: theme.label }, theme.id))) })] }), _jsx("button", { className: "rounded-lg border border-red-400/30 px-3 py-2 text-red-300", onClick: () => void logout(), children: "\u0412\u044B\u0439\u0442\u0438" })] })] }));
 };
